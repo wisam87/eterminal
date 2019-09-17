@@ -16,9 +16,9 @@
                     <h1 v-bind:class="{ red: time.remaining <= 10 }">{{time.display}}</h1>
                     <button @click.prevent="startGame()" v-if="game.step === 1">START</button>
                     <h1 v-if="game.step === 2">Container In Progress:</h1>
-                    <div class="selected_container" v-if="game.step === 2">
+                    <dv class="selected_container" v-if="game.step === 2">
                         <h1>{{ containers.selected }}</h1>
-                    </div>
+                    </dv>
                     <br>
                     <button @click.prevent="nextContainer()" v-if="game.step === 2">NEXT</button>
                     <h1 v-if="game.step === 3">Finished</h1>
@@ -83,7 +83,7 @@
                 this.selectContainer();
             },
             endGame() {
-                this.game.score = this.containers.loaded.length;
+                this.game.score = this.containers.loaded.length - 1;
                 this.stopTimer();
                 this.game.step = 3;
             },
@@ -117,7 +117,7 @@
             timerTick() {
                 this.time.remaining--;
                 if (this.time.remaining <= 0) {
-                    this.stopTimer();
+                    this.endGame();
                 }
                 this.updateTime();
             },
