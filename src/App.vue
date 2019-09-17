@@ -9,7 +9,7 @@
         <img src="./assets/mpl-logo.png" alt="" height="150px">
         <h1>Welcome to E-Terminal</h1>
         <form @submit.prevent="add()" action="">
-          <input type="text" placeholder="">
+          <input v-model="name" type="text" placeholder="">
           <br>
           <button class="submitbtn" type="submit"></button>
         </form>
@@ -17,13 +17,17 @@
 
       <div v-if="step === 2" class="game">
         <div class="name">
-          <h1 class="kidsname">Wisam</h1>
+          <h1 class="kidsname">{{name}}</h1>
           <h1>02:00</h1>
-          <button v-if="game.step === 1" @click.prevent="startGame()">Start</button>
           <h1 v-if="containers.selected">Container In Progress: {{containers.selected}}</h1>
+          <div class="selected_container">
+            <h1>GA</h1>
+          </div>
           <br><button @click.prevent="nextContainer()">Next</button>
          
           <h1 v-if="game.step === 3">Finished</h1>
+          <br>
+          <button v-if="game.step === 3" @click.prevent="restartGame()">Restart</button>
 
         </div>
 
@@ -49,6 +53,7 @@ export default {
   data() {
     return {
       step: 2,
+      name: '',
       game: {
         step: 1,
       },
@@ -84,8 +89,13 @@ export default {
       this.containers.stock = this.containers.stock.filter(e => e !== this.containers.selected);
 
       this.selectContainer();
+    },
+    restartGame() {
+      this.containers.stock = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'];
+      this.containers.loaded = [];
+      this.game.step = 1;
 
-
+      this.step = 1;
     }
   }
 }
