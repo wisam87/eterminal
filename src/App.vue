@@ -17,45 +17,16 @@
 
       <div v-if="step === 2" class="game">
         <div class="name">
-          <h1>Wisam</h1>
+          <h1 class="kidsname">Wisam</h1>
           <h1>02:00</h1>
+          <button v-if="game.step === 1" @click.prevent="startGame()">Start</button>
+          <h1 v-if="containers.selected">Container In Progress: {{containers.selected}}</h1>
+          <br><button @click.prevent="nextContainer()">Next</button>
+         
+          <h1 v-if="game.step === 3">Finished</h1>
+
         </div>
 
-          <div class="challenge">
-            <div class="box">
-              sad
-            </div>
-          </div>
-
-          <div class="challenge">
-            <div class="box">
-              sad
-            </div>
-          </div>
-          
-          <div class="challenge">
-            <div class="box">
-              sad
-            </div>
-          </div>
-
-          <div class="challenge">
-            <div class="box">
-              sad
-            </div>
-          </div>
-
-          <div class="challenge">
-            <div class="box">
-              sad
-            </div>
-          </div>
-
-          <div class="challenge">
-            <div class="box">
-              sad
-            </div>
-          </div>
 
       </div>
 
@@ -78,11 +49,43 @@ export default {
   data() {
     return {
       step: 2,
+      game: {
+        step: 1,
+      },
+      containers: {
+        stock: ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'],
+        loaded: [],
+        selected: '',
+      },
+      time: {
+        remaining: 120
+      }
     }
   },
   methods: {
     add() {
       this.step++;
+    },
+    selectContainer() {
+      if(!this.containers.stock.length) {
+        this.game.step = 3;
+      }
+
+      var randomPosContainer = Math.floor(Math.random()*this.containers.stock.length);
+      var randomContainer = this.containers.stock[randomPosContainer];
+      this.containers.selected = randomContainer;
+    },
+    startGame() {
+      this.selectContainer();
+      this.game.step++;
+    },
+    nextContainer() {
+      this.containers.loaded.push(this.containers.selected);
+      this.containers.stock = this.containers.stock.filter(e => e !== this.containers.selected);
+
+      this.selectContainer();
+
+
     }
   }
 }
@@ -153,5 +156,10 @@ export default {
   border-radius: 10px;
   font-size: 3em;
   font-weight: bold;
+}
+
+.kidsname {
+  color: white;
+  font-size: 6em;
 }
 </style>
