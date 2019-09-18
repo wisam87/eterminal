@@ -50,6 +50,7 @@
                     </dv> -->
 
                     <img class="close_button" @click.prevent="resetGame()"  src="./assets/restart-icon.png" alt="Restart">
+                    <img class="end_button" @click.prevent="endGame()"  src="./assets/stop-icon.png" alt="Stop">
 
 
                     
@@ -156,7 +157,7 @@
                     this.playAlarmSound();
                     this.endGame();
                 }
-                if (this.time.remaining < 10)
+                if (this.time.remaining <= 10)
                     this.playWarningSound();
                 this.updateTime();
             },
@@ -314,7 +315,14 @@
     .timebar {
         border-radius: 10px;
         height: 100%;
-        background-color: rgb(176, 226, 188);
+        background-color: rgb(170, 228, 183);
+        background: repeating-linear-gradient(
+        45deg,
+        rgb(170, 228, 183),
+        rgb(170, 228, 183) 10px,
+        #ffffff 10px,
+        #ffffff 20px
+        );
         transition: all 1s;
         position: relative;
     }
@@ -323,6 +331,14 @@
         position: fixed;
         bottom: 20px;
         right: 20px;
+        width: 50px;
+        height: 50px;
+    }
+
+    .end_button {
+        position: fixed;
+        bottom: 20px;
+        right: 100px;
         width: 50px;
         height: 50px;
     }
