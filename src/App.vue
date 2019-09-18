@@ -15,7 +15,7 @@
                     <h1 class="kidsname">{{username}}</h1>
                     <h1 class="timer" v-bind:class="{ red: time.remaining <= 10 }">{{time.display}}</h1>
                     
-                    <div v-if="game.step === 2"  class="timerdisplay">
+                    <div v-if="game.step === 2 || game.step === 3"  class="timerdisplay">
                         <div class="timebar" v-bind:style="{ width: bar + '%' }">
                         </div>
                     </div>
@@ -40,7 +40,7 @@
                     <h1 v-if="game.step === 2">Container In Progress:</h1>
                     <dv class="selected_container" v-if="game.step === 2">
                         <!-- <h1>{{ containers.selected }}</h1> -->
-                        <span class="loaded_container loaded" v-for="item in containers.loaded" v-bind:key="item.pos">{{item}}</span>
+                        <span @click.prevent="unloadContainer(item)" class="loaded_container loaded" v-for="item in containers.loaded" v-bind:key="item.pos">{{item}}</span>
                         <span @click.prevent="nextContainer()" class="container_id blink_me">{{containers.selected}}</span>
                     </dv>
 
@@ -50,7 +50,7 @@
                     </dv> -->
 
                     <img class="close_button" @click.prevent="resetGame()"  src="./assets/restart-icon.png" alt="Restart">
-                    <img class="end_button" @click.prevent="endGame()"  src="./assets/stop-icon.png" alt="Stop">
+                    <!-- <img class="end_button" @click.prevent="endGame()"  src="./assets/stop-icon.png" alt="Stop"> -->
 
 
                     
@@ -75,7 +75,7 @@
                 bar: 0,
                 defaults: {
                     containers: ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'],
-                    time: 20,
+                    time: 100,
                 },
                 step: 1,
                 username: '',
@@ -185,6 +185,9 @@
             playAlarmSound() {
                 var x = document.getElementById("alarmAudio");
                 x.play();
+            },
+            unloadContainer(id) {
+                this.containers.loaded = this.containers.loaded.filter(e => e !== id);
             }
         },
         beforeMount(){
@@ -264,7 +267,7 @@
     }
     .timer{
       font-size: 7em;
-      color: green;
+      color: rgb(238, 255, 0);
       margin-top: 0px !important;
     }
 
@@ -297,7 +300,7 @@
 
     @keyframes blinker {
         50% {
-            opacity: 0.5;
+            background-color: rgb(255, 145, 0);
         }
     }
 
