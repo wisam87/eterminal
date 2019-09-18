@@ -5,22 +5,50 @@
                 <img src="./assets/mpl-logo.png" alt="" height="150px">
                 <h1>Welcome to Container Terminal</h1>
                 <form @submit.prevent="newGame()" action="">
-                    <input v-model="name" type="text" placeholder="">
+                    <input v-model="username" type="text" placeholder="">
                     <br>
                     <button class="submitbtn" type="submit"></button>
                 </form>
             </div>
             <div v-if="step === 2" class="game">
                 <div class="name">
-                    <h1 class="kidsname">{{name}}</h1>
-                    <h1 v-bind:class="{ red: time.remaining <= 10 }">{{time.display}}</h1>
+                    <h1 class="kidsname">{{username}}</h1>
+                    <h1 class="timer" v-bind:class="{ red: time.remaining <= 10 }">{{time.display}}</h1>
+                    
+                    <div v-if="game.step === 2"  class="timerdisplay">
+                        <div class="timebar" v-bind:style="{ width: bar + '%' }">
+                        </div>
+                    </div>
+
+                    <div id="Audio">
+                        <audio style="display: none" id="tenSecondAudio" controls>
+                            <source src="./assets/countdown.mp3" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+
+                        <audio style="display: none" id="alarmAudio" controls>
+                            <source src="./assets/alarm.mp3" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </div>
+
+                    
+
                     <button @click.prevent="startGame()" v-if="game.step === 1">START</button>
                     <h1 v-if="game.step === 2">Container In Progress:</h1>
                     <dv class="selected_container" v-if="game.step === 2">
-                        <h1>{{ containers.selected }}</h1>
+                        <!-- <h1>{{ containers.selected }}</h1> -->
+                        <span class="loaded_container loaded" v-for="item in containers.loaded" v-bind:key="item.pos">{{item}}</span>
+                        <span @click.prevent="nextContainer()" class="container_id blink_me">{{containers.selected}}</span>
                     </dv>
-                    <br>
-                    <button @click.prevent="nextContainer()" v-if="game.step === 2">NEXT</button>
+
+                    <!-- <h1 v-if="game.step === 2">Containers Loaded:</h1>
+                    <dv class="selected_container" v-if="game.step === 2">
+                        <span class="container_id loaded" v-for="item in containers.loaded" v-bind:key="item.pos">{{item}}</span>                        
+                    </dv> -->
+
+                    
+                    <!-- <button @click.prevent="nextContainer()" v-if="game.step === 2">NEXT</button> -->
                     <h1 v-if="game.step === 3">Finished</h1>
                     <h2 v-if="game.step === 3">Your Score is {{ game.score }}</h2>
                     <button v-if="game.step === 3" @click.prevent="resetGame()">RESTART</button>
@@ -39,12 +67,13 @@
         },
         data() {
             return {
+                bar: 0,
                 defaults: {
                     containers: ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'],
-                    time: 5,
+                    time: 20,
                 },
                 step: 1,
-                name: '',
+                username: '',
                 game: {
                     step: 1,
                     score: 0,
@@ -65,7 +94,7 @@
         methods: {
             resetGame() {
                 this.step = 1;
-                this.name = '';
+                this.username = 'Wisam';
                 this.game.step = 1;
                 this.game.score = 0;
                 this.containers.stock = this.defaults.containers;
@@ -75,7 +104,9 @@
                 this.resetTimer();
             },
             newGame() {
-                this.step++;
+                if(this.username !== '') {
+                    this.step++;
+                }
             },
             startGame() {
                 this.startTimer();
@@ -83,9 +114,10 @@
                 this.selectContainer();
             },
             endGame() {
-                this.game.score = this.containers.loaded.length - 1;
+                this.game.score = this.containers.loaded.length ;
                 this.stopTimer();
-                this.game.step = 3;
+                this.game.step = 3; 
+                
             },
             selectContainer() {
                 if(!this.containers.stock.length) {
@@ -119,12 +151,26 @@
                 if (this.time.remaining <= 0) {
                     this.endGame();
                 }
+
+                if(this.time.remaining === 0) {
+                    this.playAlarmSound();
+                }
+
+                if (this.time.remaining < 10 ) {
+                    this.playWarningSound();
+                }
                 this.updateTime();
             },
             updateTime() {
                 let min = Math.floor(this.time.remaining / 60);
                 let sec = this.time.remaining - min * 60;
+
+                this.updateProgressBar();
+
                 this.time.display = this.zeroPrefix(min, 2) + ":" + this.zeroPrefix(sec, 2)
+            },
+            updateProgressBar() {
+                this.bar = 100 - (this.time.remaining / 120)*100;
             },
             zeroPrefix(num, digit) {
                 let zero = '';
@@ -132,11 +178,20 @@
                     zero += '0';
                 }
                 return (zero + num).slice(-digit);
+            },
+            playWarningSound() {
+                var x = document.getElementById("tenSecondAudio");
+                x.play();
+            }, 
+            playAlarmSound() {
+                var x = document.getElementById("alarmAudio");
+                x.play();
             }
         },
         beforeMount(){
             this.resetGame();
         },
+        
     }
 </script>
 
@@ -205,6 +260,64 @@
         font-size: 6em;
     }
     .red {
-        color: red;
+        color: red !important;
     }
+    .timer{
+      font-size: 5em;
+      color: green;
+      margin-top: 0px !important;
+    }
+
+    .container_id {
+        font-size: 4em;
+        color: black;
+        font-weight: bold;
+        background-color: yellow;
+        padding: 20px;
+        margin: 10px;
+    }
+
+    .loaded_container {
+        font-size: 2em;
+        color: black;
+        font-weight: bold;
+        background-color: green;
+        padding: 20px;
+        margin: 10px;
+    }
+
+    .loaded {
+        background-color: green;
+        color: white;
+    }
+
+    .blink_me {
+        animation: blinker 2s linear infinite;
+    }
+
+    @keyframes blinker {
+        50% {
+            opacity: 0.5;
+        }
+    }
+
+    .timerdisplay {
+        top: 20px;
+        position: fixed;
+        width: 80%;
+        margin: 0% 10% 0% 10%;
+        background-color: rgb(14, 82, 121);
+        height: 20px;
+        left: 0;
+        border-radius: 10px;
+    }
+
+    .timebar {
+        border-radius: 10px;
+        height: 100%;
+        background-color: rgb(176, 226, 188);
+        transition: all 1s;
+        position: relative;
+    }
+
 </style>
