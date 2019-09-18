@@ -4,10 +4,10 @@
             <div v-if="step === 1" class="home">
                 <img src="./assets/mpl-logo.png" alt="" height="150px">
                 <h1>Welcome to Container Terminal</h1>
-                <form @submit.prevent="newGame()" action="">
+                <form @submit.prevent="" action="">
                     <input v-model="username" type="text" placeholder="">
                     <br>
-                    <button class="submitbtn" type="submit"></button>
+                    <img style="margin: 20px" @click.prevent="newGame()" src="./assets/fast-right-icon.png" alt="START">
                 </form>
             </div>
             <div v-if="step === 2" class="game">
@@ -34,7 +34,9 @@
 
                     
 
-                    <button @click.prevent="startGame()" v-if="game.step === 1">START</button>
+                    <!-- <button @click.prevent="startGame()" v-if="game.step === 1">START</button> -->
+                    <img @click.prevent="startGame()" v-if="game.step === 1" src="./assets/start-icon.png" alt="START">
+
                     <h1 v-if="game.step === 2">Container In Progress:</h1>
                     <dv class="selected_container" v-if="game.step === 2">
                         <!-- <h1>{{ containers.selected }}</h1> -->
@@ -47,11 +49,13 @@
                         <span class="container_id loaded" v-for="item in containers.loaded" v-bind:key="item.pos">{{item}}</span>                        
                     </dv> -->
 
+                    <img class="close_button" @click.prevent="resetGame()"  src="./assets/restart-icon.png" alt="Restart">
+
+
                     
                     <!-- <button @click.prevent="nextContainer()" v-if="game.step === 2">NEXT</button> -->
                     <h1 v-if="game.step === 3">Finished</h1>
                     <h2 v-if="game.step === 3">Your Score is {{ game.score }}</h2>
-                    <button v-if="game.step === 3" @click.prevent="resetGame()">RESTART</button>
                 </div>
             </div>
         </div>
@@ -223,7 +227,7 @@
         border-radius: 10px;
     }
     .submitbtn {
-        background-image: url('./assets/SVG/button.svg');
+        /* background-image: url('./assets/fast-right-icon.png'); */
         background-size: cover;
         background-repeat: no-repeat;
         background-position: center;
@@ -252,12 +256,13 @@
     .kidsname {
         color: white;
         font-size: 6em;
+        margin-bottom: 0px;
     }
     .red {
         color: red !important;
     }
     .timer{
-      font-size: 5em;
+      font-size: 7em;
       color: green;
       margin-top: 0px !important;
     }
@@ -312,6 +317,14 @@
         background-color: rgb(176, 226, 188);
         transition: all 1s;
         position: relative;
+    }
+
+    .close_button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
     }
 
 </style>
