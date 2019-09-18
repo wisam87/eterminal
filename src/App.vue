@@ -149,28 +149,22 @@
             timerTick() {
                 this.time.remaining--;
                 if (this.time.remaining <= 0) {
+                    this.playAlarmSound();
                     this.endGame();
                 }
-
-                if(this.time.remaining === 0) {
-                    this.playAlarmSound();
-                }
-
-                if (this.time.remaining < 10 ) {
+                if (this.time.remaining < 10)
                     this.playWarningSound();
-                }
                 this.updateTime();
             },
             updateTime() {
                 let min = Math.floor(this.time.remaining / 60);
                 let sec = this.time.remaining - min * 60;
 
+                this.time.display = this.zeroPrefix(min, 2) + ":" + this.zeroPrefix(sec, 2);
                 this.updateProgressBar();
-
-                this.time.display = this.zeroPrefix(min, 2) + ":" + this.zeroPrefix(sec, 2)
             },
             updateProgressBar() {
-                this.bar = 100 - (this.time.remaining / 120)*100;
+                this.bar = 100 - (this.time.remaining / this.defaults.time)*100;
             },
             zeroPrefix(num, digit) {
                 let zero = '';
