@@ -8,13 +8,14 @@ app.use(express.urlencoded({
     extended: true
 }));
 app.use(express.json());
+app.use(express.static('public'))
 const port = 3000;
 
 let data = {
     bar: 0,
     defaults: {
-        containers: ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'],
-        time: 5,
+        containers: ['ITD01', 'ITD02', 'ITD03', 'ITD04', 'ITD05'],
+        time: 20,
     },
     step: 1,
     username: '',
@@ -43,6 +44,9 @@ let subscriptions = {
 
 app.use(express.static('public'));
 app.get('/', (req, res) => res.send('Hello World!'));
+app.get('/defaults', (req, res) => {
+    res.send(JSON.stringify(data));
+});
 app.post('/update', (req, res) => {
     lastEntry.next(req.body);
     console.log(req.body);

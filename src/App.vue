@@ -20,24 +20,10 @@
                         </div>
                     </div>
 
-                    <div id="Audio">
-                        <audio style="display: none" id="tenSecondAudio" controls>
-                            <source src="./assets/countdown.mp3" type="audio/mpeg">
-                            Your browser does not support the audio element.
-                        </audio>
-
-                        <audio style="display: none" id="alarmAudio" controls>
-                            <source src="./assets/alarm.mp3" type="audio/mpeg">
-                            Your browser does not support the audio element.
-                        </audio>
-                    </div>
-
-                    
-
                     <!-- <button @click.prevent="startGame()" v-if="game.game.step === 1">START</button> -->
                     <img @click.prevent="startGame()" v-if="game.game.step === 1" src="./assets/start-icon.png" alt="START">
 
-                    <h1 v-if="game.game.step === 2">Container In Progress:</h1>
+                    <h1 v-if="game.game.step === 2">Container Loading In Progress:</h1>
                     <dv class="selected_container" v-if="game.game.step === 2">
                         <!-- <h1>{{ containers.selected }}</h1> -->
                         <span @click.prevent="unloadContainer(item)" class="loaded_container loaded" v-for="item in game.containers.loaded" v-bind:key="item.pos">{{item}}</span>
@@ -56,7 +42,7 @@
                     
                     <!-- <button @click.prevent="nextContainer()" v-if="game.game.step === 2">NEXT</button> -->
                     <h1 v-if="game.game.step === 3">Finished</h1>
-                    <h2 v-if="game.game.step === 3">Your Score is {{ game.game.score }}</h2>
+                    <h2 class="score" v-if="game.game.step === 3">Your Score is {{ game.game.score }}</h2>
                 </div>
             </div>
         </div>
@@ -74,34 +60,17 @@
             return {
                 sseServer: 'http://192.168.4.101:3000',
                 isDisplay: true,
-                game: {
-                    bar: 0,
-                    defaults: {
-                        containers: ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'],
-                        time: 30,
-                    },
-                    step: 1,
-                    username: '',
-                    game: {
-                        step: 1,
-                        score: 0,
-                    },
-                    containers: {
-                        stock: [],
-                        loaded: [],
-                        selected: '',
-                    },
-                    time: {
-                        remaining: 0,
-                        running: false,
-                        display: '00:00',
-                        started: null
-                    }
+                game: {},
+                audio: {
+                    warning: null,
+                    alarm: null,
+                    win: null
                 }
             }
         },
         methods: {
             resetGame() {
+                if (this.isDisplay) return;
                 if (this.game.game.step === 2) {
                     this.endGame();
                 }
@@ -114,22 +83,36 @@
                 this.game.containers.selected = '';
                 this.game.time.started = null;
                 this.resetTimer();
+                if (this.audio.warning) {
+                    this.stopWarningSound();
+                }
+                if (this.audio.alarm) {
+                    this.stopAlarmSound();
+                }
             },
             newGame() {
+                if (this.isDisplay) return;
                 if (this.game.username !== '') {
                     this.game.step++;
                 }
             },
             startGame() {
+                if (this.isDisplay) return;
                 this.startTimer();
                 this.game.game.step = 2;
                 this.selectContainer();
             },
             endGame() {
+                if (this.isDisplay) return;
                 this.game.game.score = this.game.containers.loaded.length;
                 this.stopTimer();
                 this.game.game.step = 3;
-
+                if (this.audio.warning) {
+                    this.stopWarningSound();
+                }
+                if (this.audio.alarm) {
+                    this.stopAlarmSound();
+                }
             },
             selectContainer() {
                 if (!this.game.containers.stock.length) {
@@ -139,6 +122,7 @@
                 this.game.containers.selected = this.game.containers.stock[randomPosContainer];
             },
             nextContainer() {
+                if (this.isDisplay) return;
                 this.game.containers.loaded.push(this.game.containers.selected);
                 this.game.containers.stock = this.game.containers.stock.filter(e => e !== this.game.containers.selected);
                 this.selectContainer();
@@ -160,12 +144,13 @@
             },
             timerTick() {
                 this.game.time.remaining--;
-                if (this.game.time.remaining <= 0) {
-                    this.playAlarmSound();
+                if (this.game.time.remaining === 0) {
+                    this.toggleAlarmSound();
                     this.endGame();
                 }
-                if (this.game.time.remaining <= 10)
-                    this.playWarningSound();
+                if (this.game.time.remaining === 10) {
+                    this.toggleWarningSound();
+                }
                 this.updateTime();
             },
             updateTime() {
@@ -185,38 +170,100 @@
                 }
                 return (zero + num).slice(-digit);
             },
-            playWarningSound() {
-                var x = document.getElementById("tenSecondAudio");
-                x.play();
-            },
             playAlarmSound() {
-                var x = document.getElementById("alarmAudio");
-                x.play();
+                if (!this.isDisplay) return;
+                this.audio.alarm.play();
+            },
+            stopAlarmSound() {
+                if (!this.isDisplay) return;
+                this.audio.alarm.pause();
+                this.audio.alarm.currentTime = 0;
+            },
+            playWarningSound() {
+                if (!this.isDisplay) return;
+                this.audio.warning.play();
+            },
+            stopWarningSound() {
+                if (!this.isDisplay) return;
+                this.audio.warning.pause();
+                this.audio.warning.currentTime = 0;
+            },
+            playWinSound() {
+                if (!this.isDisplay) return;
+                this.audio.win.play();
+            },
+            stopWinSound() {
+                if (!this.isDisplay) return;
+                this.audio.win.pause();
+                this.audio.win.currentTime = 0;
             },
             unloadContainer(id) {
+                if (this.isDisplay) return;
                 this.game.containers.loaded = this.game.containers.loaded.filter(e => e !== id);
             },
             setupStream() {
                 if (this.isDisplay) {
                     let es = new EventSource(this.sseServer+'/events');
-                    es.addEventListener('message', event => {
+                    es.addEventListener('message', (event) => {
                         let data = JSON.parse(event.data);
                         if (JSON.stringify(data) == JSON.stringify(this.game)) {
                             return;
                         }
                         this.game = data;
+                        if (this.game.time.remaining === 0 && this.game.step === 2) {
+                            this.playAlarmSound();
+                            this.endGame();
+                        }
+                        if (this.game.time.remaining === 9 && this.game.step === 2) {
+                            this.playWarningSound();
+                        }
+                        if (!this.game.containers.stock.length && (this.game.step === 2 || this.game.step === 3)) {
+                            this.stopAlarmSound();
+                            this.stopWarningSound();
+                            this.playWinSound();
+                            return this.endGame();
+                        }
                     }, false);
                 }
+            },
+            init() {
+                let win = this.sseServer+'/clap.mp3';
+                if (win)
+                    this.audio.win = new Audio(win);
+
+                let alarm = this.sseServer+'/alarm.mp3';
+                if (alarm)
+                    this.audio.alarm = new Audio(alarm);
+
+                let warning = this.sseServer+'/countdown.mp3';
+                if (warning)
+                    this.audio.warning = new Audio(warning);
+
+                fetch(this.sseServer+'/defaults', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                })
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((myJson) => {
+                        this.game = myJson;
+                        this.resetGame();
+                    }).catch(() => {
+                        alert("An error with the socket server!");
+                    });
             }
         },
         beforeMount(){
-            this.resetGame();
             this.isDisplay = !(window.location.href.includes('isDisplay=false'));
             this.setupStream();
+            this.init();
         },
         watch: {
             'game': {
-                handler: function(val, oldVal) {
+                handler: function(val) {
                     if (this.isDisplay) {
                         return;
                     }
@@ -382,6 +429,9 @@
         right: 100px;
         width: 50px;
         height: 50px;
+    }
+    h2.score {
+        font-size: 4em;
     }
 
 </style>
