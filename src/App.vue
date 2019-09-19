@@ -72,6 +72,7 @@
         },
         data() {
             return {
+                sseServer: 'http://192.168.4.101:3000',
                 isDisplay: true,
                 game: {
                     bar: 0,
@@ -197,7 +198,7 @@
             },
             setupStream() {
                 if (this.isDisplay) {
-                    let es = new EventSource('http://192.168.4.101:3000/events');
+                    let es = new EventSource(this.sseServer+'/events');
                     es.addEventListener('message', event => {
                         let data = JSON.parse(event.data);
                         if (JSON.stringify(data) == JSON.stringify(this.game)) {
@@ -219,7 +220,7 @@
                     if (this.isDisplay) {
                         return;
                     }
-                    fetch('http://192.168.4.101:3000/update', {
+                    fetch(this.sseServer+'/update', {
                         method: 'post',
                         body: JSON.stringify(val),
                         headers: {
