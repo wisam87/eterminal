@@ -1,22 +1,22 @@
 <template>
     <div id="app">
         <div style="height: 100%;">
-            <div v-if="step === 1" class="home">
+            <div v-if="game.step === 1" class="home">
                 <img src="./assets/mpl-logo.png" alt="" height="150px">
                 <h1>Welcome to Container Terminal</h1>
                 <form @submit.prevent="" action="">
-                    <input v-model="username" type="text" placeholder="">
+                    <input v-model="game.username" type="text" placeholder="">
                     <br>
                     <img style="margin: 20px" @click.prevent="newGame()" src="./assets/fast-right-icon.png" alt="START">
                 </form>
             </div>
-            <div v-if="step === 2" class="game">
+            <div v-if="game.step === 2" class="game">
                 <div class="name">
-                    <h1 class="kidsname">{{username}}</h1>
-                    <h1 class="timer" v-bind:class="{ red: time.remaining <= 10 }">{{time.display}}</h1>
+                    <h1 class="kidsname">{{game.username}}</h1>
+                    <h1 class="timer" v-bind:class="{ red: game.time.remaining <= 10 }">{{game.time.display}}</h1>
                     
-                    <div v-if="game.step === 2 || game.step === 3"  class="timerdisplay">
-                        <div class="timebar" v-bind:style="{ width: bar + '%' }">
+                    <div v-if="game.game.step === 2 || game.game.step === 3"  class="timerdisplay">
+                        <div class="timebar" v-bind:style="{ width: game.bar + '%' }">
                         </div>
                     </div>
 
@@ -34,18 +34,18 @@
 
                     
 
-                    <!-- <button @click.prevent="startGame()" v-if="game.step === 1">START</button> -->
-                    <img @click.prevent="startGame()" v-if="game.step === 1" src="./assets/start-icon.png" alt="START">
+                    <!-- <button @click.prevent="startGame()" v-if="game.game.step === 1">START</button> -->
+                    <img @click.prevent="startGame()" v-if="game.game.step === 1" src="./assets/start-icon.png" alt="START">
 
-                    <h1 v-if="game.step === 2">Container In Progress:</h1>
-                    <dv class="selected_container" v-if="game.step === 2">
+                    <h1 v-if="game.game.step === 2">Container In Progress:</h1>
+                    <dv class="selected_container" v-if="game.game.step === 2">
                         <!-- <h1>{{ containers.selected }}</h1> -->
-                        <span @click.prevent="unloadContainer(item)" class="loaded_container loaded" v-for="item in containers.loaded" v-bind:key="item.pos">{{item}}</span>
-                        <span @click.prevent="nextContainer()" class="container_id blink_me">{{containers.selected}}</span>
+                        <span @click.prevent="unloadContainer(item)" class="loaded_container loaded" v-for="item in game.containers.loaded" v-bind:key="item.pos">{{item}}</span>
+                        <span @click.prevent="nextContainer()" class="container_id blink_me">{{game.containers.selected}}</span>
                     </dv>
 
-                    <!-- <h1 v-if="game.step === 2">Containers Loaded:</h1>
-                    <dv class="selected_container" v-if="game.step === 2">
+                    <!-- <h1 v-if="game.game.step === 2">Containers Loaded:</h1>
+                    <dv class="selected_container" v-if="game.game.step === 2">
                         <span class="container_id loaded" v-for="item in containers.loaded" v-bind:key="item.pos">{{item}}</span>                        
                     </dv> -->
 
@@ -54,9 +54,9 @@
 
 
                     
-                    <!-- <button @click.prevent="nextContainer()" v-if="game.step === 2">NEXT</button> -->
-                    <h1 v-if="game.step === 3">Finished</h1>
-                    <h2 v-if="game.step === 3">Your Score is {{ game.score }}</h2>
+                    <!-- <button @click.prevent="nextContainer()" v-if="game.game.step === 2">NEXT</button> -->
+                    <h1 v-if="game.game.step === 3">Finished</h1>
+                    <h2 v-if="game.game.step === 3">Your Score is {{ game.game.score }}</h2>
                 </div>
             </div>
         </div>
@@ -72,111 +72,114 @@
         },
         data() {
             return {
-                bar: 0,
-                defaults: {
-                    containers: ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'],
-                    time: 5,
-                },
-                step: 1,
-                username: '',
+                isDisplay: true,
                 game: {
+                    bar: 0,
+                    defaults: {
+                        containers: ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'],
+                        time: 30,
+                    },
                     step: 1,
-                    score: 0,
-                },
-                containers: {
-                    stock: [],
-                    loaded: [],
-                    selected: '',
-                },
-                time: {
-                    remaining: 0,
-                    running: false,
-                    display: '00:00',
-                    started: null
+                    username: '',
+                    game: {
+                        step: 1,
+                        score: 0,
+                    },
+                    containers: {
+                        stock: [],
+                        loaded: [],
+                        selected: '',
+                    },
+                    time: {
+                        remaining: 0,
+                        running: false,
+                        display: '00:00',
+                        started: null
+                    }
                 }
             }
         },
         methods: {
             resetGame() {
-                if (this.game.step === 2) {
+                if (this.game.game.step === 2) {
                     this.endGame();
                 }
-                this.step = 1;
-                this.username = 'wisam';
                 this.game.step = 1;
-                this.game.score = 0;
-                this.containers.stock = this.defaults.containers;
-                this.containers.loaded = [];
-                this.containers.selected = '';
-                this.time.started = null;
+                this.game.username = 'wisam';
+                this.game.game.step = 1;
+                this.game.game.score = 0;
+                this.game.containers.stock = this.game.defaults.containers;
+                this.game.containers.loaded = [];
+                this.game.containers.selected = '';
+                this.game.time.started = null;
                 this.resetTimer();
             },
             newGame() {
-                if(this.username !== '') {
-                    this.step++;
+                if (this.game.username !== '') {
+                    this.game.step++;
                 }
             },
             startGame() {
                 this.startTimer();
-                this.game.step = 2;
+                this.game.game.step = 2;
                 this.selectContainer();
             },
             endGame() {
-                this.game.score = this.containers.loaded.length ;
+                this.game.game.score = this.game.containers.loaded.length;
                 this.stopTimer();
-                this.game.step = 3; 
-                
+                this.game.game.step = 3;
+
             },
             selectContainer() {
-                if(!this.containers.stock.length) {
+                if (!this.game.containers.stock.length) {
                     return this.endGame();
                 }
-                let randomPosContainer = Math.floor(Math.random()*this.containers.stock.length);
-                this.containers.selected = this.containers.stock[randomPosContainer];
+                let randomPosContainer = Math.floor(Math.random() * this.game.containers.stock.length);
+                this.game.containers.selected = this.game.containers.stock[randomPosContainer];
             },
             nextContainer() {
-                this.containers.loaded.push(this.containers.selected);
-                this.containers.stock = this.containers.stock.filter(e => e !== this.containers.selected);
+                this.game.containers.loaded.push(this.game.containers.selected);
+                this.game.containers.stock = this.game.containers.stock.filter(e => e !== this.game.containers.selected);
                 this.selectContainer();
             },
             startTimer() {
-                if (this.time.running) return;
-                this.time.started = setInterval(this.timerTick, 1000);
-                this.time.running = true;
+                if (this.game.time.running) return;
+                this.game.time.started = setInterval(this.timerTick, 1000);
+                this.game.time.running = true;
             },
             stopTimer() {
-                this.time.running = false;
-                clearInterval(this.time.started);
+                this.game.time.running = false;
+                clearInterval(this.game.time.started);
+                this.game.time.started = 0;
             },
             resetTimer() {
-                this.time.running = false;
-                clearInterval(this.time.started);
-                this.time.remaining = this.defaults.time;
+                this.stopTimer();
+                this.game.time.remaining = this.game.defaults.time;
                 this.updateTime();
             },
             timerTick() {
-                this.time.remaining--;
-                if (this.time.remaining <= 0) {
+                this.game.time.remaining--;
+                if (this.game.time.remaining <= 0) {
                     this.playAlarmSound();
                     this.endGame();
                 }
-                if (this.time.remaining <= 10)
+                if (this.game.time.remaining <= 10)
                     this.playWarningSound();
                 this.updateTime();
             },
             updateTime() {
-                let min = Math.floor(this.time.remaining / 60);
-                let sec = this.time.remaining - min * 60;
+                let min = Math.floor(this.game.time.remaining / 60);
+                let sec = this.game.time.remaining - min * 60;
 
-                this.time.display = this.zeroPrefix(min, 2) + ":" + this.zeroPrefix(sec, 2);
+                this.game.time.display = this.zeroPrefix(min, 2) + ":" + this.zeroPrefix(sec, 2);
                 this.updateProgressBar();
             },
             updateProgressBar() {
-                this.bar = (100 - (this.time.remaining / this.defaults.time) * 100);
+                this.game.bar = (100 - (this.game.time.remaining / this.game.defaults.time) * 100);
             },
             zeroPrefix(num, digit) {
                 let zero = '';
-                for(let i = 0; i < digit; i++) {
+                for (let i = 0; i < digit; i++) {
                     zero += '0';
                 }
                 return (zero + num).slice(-digit);
@@ -184,19 +187,50 @@
             playWarningSound() {
                 var x = document.getElementById("tenSecondAudio");
                 x.play();
-            }, 
+            },
             playAlarmSound() {
                 var x = document.getElementById("alarmAudio");
                 x.play();
             },
             unloadContainer(id) {
-                this.containers.loaded = this.containers.loaded.filter(e => e !== id);
+                this.game.containers.loaded = this.game.containers.loaded.filter(e => e !== id);
+            },
+            setupStream() {
+                if (this.isDisplay) {
+                    let es = new EventSource('http://192.168.4.101:3000/events');
+                    es.addEventListener('message', event => {
+                        let data = JSON.parse(event.data);
+                        if (JSON.stringify(data) == JSON.stringify(this.game)) {
+                            return;
+                        }
+                        this.game = data;
+                    }, false);
+                }
             }
         },
         beforeMount(){
             this.resetGame();
+            this.isDisplay = !(window.location.href.includes('isDisplay=false'));
+            this.setupStream();
         },
-        
+        watch: {
+            'game': {
+                handler: function(val, oldVal) {
+                    if (this.isDisplay) {
+                        return;
+                    }
+                    fetch('http://192.168.4.101:3000/update', {
+                        method: 'post',
+                        body: JSON.stringify(val),
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin': '*'
+                        },
+                    });
+                },
+                deep: true
+            }
+        }
     }
 </script>
 
