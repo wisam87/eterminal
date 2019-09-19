@@ -50,7 +50,7 @@
                     </dv> -->
 
                     <img class="close_button" @click.prevent="resetGame()"  src="./assets/restart-icon.png" alt="Restart">
-                    <!-- <img class="end_button" @click.prevent="endGame()"  src="./assets/stop-icon.png" alt="Stop"> -->
+                     <img class="end_button" @click.prevent="endGame()"  src="./assets/stop-icon.png" alt="Stop">
 
 
                     
@@ -75,7 +75,7 @@
                 bar: 0,
                 defaults: {
                     containers: ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'],
-                    time: 100,
+                    time: 5,
                 },
                 step: 1,
                 username: '',
@@ -98,8 +98,11 @@
         },
         methods: {
             resetGame() {
+                if (this.game.step === 2) {
+                    this.endGame();
+                }
                 this.step = 1;
-                this.username = 'Wisam';
+                this.username = 'wisam';
                 this.game.step = 1;
                 this.game.score = 0;
                 this.containers.stock = this.defaults.containers;
@@ -169,7 +172,7 @@
                 this.updateProgressBar();
             },
             updateProgressBar() {
-                this.bar = 100 - (this.time.remaining / this.defaults.time)*100;
+                this.bar = (100 - (this.time.remaining / this.defaults.time) * 100);
             },
             zeroPrefix(num, digit) {
                 let zero = '';
