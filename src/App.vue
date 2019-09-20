@@ -24,11 +24,11 @@
                     <img @click.prevent="startGame()" v-if="game.game.step === 1" src="./assets/start-icon.png" alt="START">
 
                     <h1 v-if="game.game.step === 2">Container Loading In Progress:</h1>
-                    <dv class="selected_container" v-if="game.game.step === 2">
+                    <div class="selected_container" v-if="game.game.step === 2">
                         <!-- <h1>{{ containers.selected }}</h1> -->
                         <span @click.prevent="unloadContainer(item)" class="loaded_container loaded" v-for="item in game.containers.loaded" v-bind:key="item.pos">{{item}}</span>
                         <span @click.prevent="nextContainer()" class="container_id blink_me">{{game.containers.selected}}</span>
-                    </dv>
+                    </div>
 
                     <!-- <h1 v-if="game.game.step === 2">Containers Loaded:</h1>
                     <dv class="selected_container" v-if="game.game.step === 2">
@@ -58,7 +58,7 @@
         },
         data() {
             return {
-                sseServer: 'http://192.168.4.101:3000',
+                sseServer: 'http://192.168.43.51:3000',
                 isDisplay: true,
                 game: {},
                 audio: {
@@ -75,7 +75,7 @@
                     this.endGame();
                 }
                 this.game.step = 1;
-                this.game.username = 'wisam';
+                this.game.username = '';
                 this.game.game.step = 1;
                 this.game.game.score = 0;
                 this.game.containers.stock = this.game.defaults.containers;
@@ -145,11 +145,11 @@
             timerTick() {
                 this.game.time.remaining--;
                 if (this.game.time.remaining === 0) {
-                    this.toggleAlarmSound();
+                    this.playAlarmSound();
                     this.endGame();
                 }
                 if (this.game.time.remaining === 10) {
-                    this.toggleWarningSound();
+                    this.playWarningSound();
                 }
                 this.updateTime();
             },
@@ -211,13 +211,16 @@
                         }
                         this.game = data;
                         if (this.game.time.remaining === 0 && this.game.step === 2) {
+                            console.log("alert");
                             this.playAlarmSound();
                             this.endGame();
                         }
                         if (this.game.time.remaining === 9 && this.game.step === 2) {
+                            console.log("warning");
                             this.playWarningSound();
                         }
                         if (!this.game.containers.stock.length && (this.game.step === 2 || this.game.step === 3)) {
+                            console.log("won");
                             this.stopAlarmSound();
                             this.stopWarningSound();
                             this.playWinSound();
@@ -295,7 +298,6 @@
         background-image: url('./assets/background-home.png');
         background-size: cover;
         background-position: center;
-        text-align: center
     }
     .home {
         background-color: #FFFFFF;
